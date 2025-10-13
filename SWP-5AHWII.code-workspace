@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"name": "SWP-5AHWII",
+			"path": "."
+		},
+		{
+			"path": "../sj25-26-5ahwii-swp-1"
+		},
+		{
+			"name": "GRG-SWP",
+			"path": "../GRG-SWP"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Bennikolm"
+	}
+}

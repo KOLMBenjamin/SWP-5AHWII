@@ -3,8 +3,7 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.14",
     "jsr:@std/internal@^1.0.10": "1.0.10",
-    "npm:prisma@*": "6.16.2",
-    "npm:prisma@^6.16.2": "6.16.2",
+    "npm:@prisma/client@^6.16.2": "6.16.2",
     "npm:prisma@latest": "6.16.2"
   },
   "jsr": {
@@ -19,6 +18,10 @@
     }
   },
   "npm": {
+    "@prisma/client@6.16.2": {
+      "integrity": "sha512-E00PxBcalMfYO/TWnXobBVUai6eW/g5OsifWQsQDzJYm7yaY+IRLo7ZLsaefi0QkTpxfuhFcQ/w180i6kX3iJw==",
+      "scripts": true
+    },
     "@prisma/config@6.16.2": {
       "integrity": "sha512-mKXSUrcqXj0LXWPmJsK2s3p9PN+aoAbyMx7m5E1v1FufofR1ZpPoIArjjzOIm+bJRLLvYftoNYLx1tbHgF9/yg==",
       "dependencies": [
@@ -203,7 +206,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
-      "npm:prisma@^6.16.2"
+      "npm:@prisma/client@^6.16.2"
     ]
   }
 }

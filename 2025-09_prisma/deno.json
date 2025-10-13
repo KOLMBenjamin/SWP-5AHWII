@@ -3,10 +3,12 @@
     "dev": "deno run --watch main.ts",
     "prisma:generate": "deno run -A npm:prisma@latest generate",
     "prisma:validate": "deno run -A npm:prisma@latest validate",
-    "prisma:init": "deno run -A npm:prisma@latest init"
+    "prisma:seed": "deno run -A --env-file seed.ts",
+    "prisma:migrate_dev": "deno run -A npm:prisma@latest migrate dev",
+    "prisma:studio": "deno run -A npm:prisma@latest studio"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
-    "prisma": "npm:prisma@^6.16.2"
+    "@prisma/client": "npm:@prisma/client@^6.16.2"
   }
 }
