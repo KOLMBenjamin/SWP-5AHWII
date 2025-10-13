@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts",
+    "studio": "deno -A prisma studio",
+    "md": "deno -A --env-file prisma migrate dev"
+  },
+  "imports": {
+    "@faker-js/faker": "npm:@faker-js/faker@^10.0.0",
+    "@std/assert": "jsr:@std/assert@1",
+    "prisma": "npm:prisma@^6.17.1"
+  }
+}
