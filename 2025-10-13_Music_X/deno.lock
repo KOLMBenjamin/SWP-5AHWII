@@ -3,7 +3,9 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.15",
     "jsr:@std/internal@^1.0.12": "1.0.12",
-    "npm:@faker-js/faker@10": "10.0.0",
+    "npm:@faker-js/faker@10.0.0": "10.0.0",
+    "npm:@prisma/client@*": "6.17.1_prisma@6.17.1",
+    "npm:prisma@6.17.1": "6.17.1",
     "npm:prisma@^6.17.1": "6.17.1"
   },
   "jsr": {
@@ -20,6 +22,16 @@
   "npm": {
     "@faker-js/faker@10.0.0": {
       "integrity": "sha512-UollFEUkVXutsaP+Vndjxar40Gs5JL2HeLcl8xO1QAjJgOdhc3OmBFWyEylS+RddWaaBiAzH+5/17PLQJwDiLw=="
+    },
+    "@prisma/client@6.17.1_prisma@6.17.1": {
+      "integrity": "sha512-zL58jbLzYamjnNnmNA51IOZdbk5ci03KviXCuB0Tydc9btH2kDWsi1pQm2VecviRTM7jGia0OPPkgpGnT3nKvw==",
+      "dependencies": [
+        "prisma"
+      ],
+      "optionalPeers": [
+        "prisma"
+      ],
+      "scripts": true
     },
     "@prisma/config@6.17.1": {
       "integrity": "sha512-fs8wY6DsvOCzuiyWVckrVs1LOcbY4LZNz8ki4uUIQ28jCCzojTGqdLhN2Jl5lDnC1yI8/gNIKpsWDM8pLhOdwA==",
@@ -205,8 +217,13 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
-      "npm:@faker-js/faker@10",
-      "npm:prisma@^6.17.1"
-    ]
+      "npm:@faker-js/faker@10.0.0",
+      "npm:@prisma/client@*"
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:prisma@^6.17.1"
+      ]
+    }
   }
 }
