@@ -222,6 +222,7 @@
     ],
     "packageJson": {
       "dependencies": [
+        "npm:@faker-js/faker@10",
         "npm:prisma@^6.17.1"
       ]
     }
