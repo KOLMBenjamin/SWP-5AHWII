@@ -29,7 +29,7 @@ async function main() {
     });
     console.log(`Genre: ${genre.name}`);
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 20; i++) {
         const song = await prisma.song.create({
             data: {
                 name: fakerDE_AT.music.songName(),

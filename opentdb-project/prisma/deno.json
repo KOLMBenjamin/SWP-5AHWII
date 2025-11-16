@@ -1,0 +1,17 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-read --allow-write --allow-net --allow-env main.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:db-push": "prisma db push",
+    "prisma:studio": "prisma studio",
+    "start": "deno run -A main.ts",
+    "seed": "deno run --allow-read --allow-write --allow-net --allow-env seed.ts",
+    "db:reset": "deno run --allow-read --allow-write --allow-net db-reset.ts"
+  },
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM"]
+  },
+  "imports": {
+    "@prisma/client": "./generated/client/index.js"
+  }
+}
