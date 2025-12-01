@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Kategorien & Schwierigkeit</title>
+    <link rel="stylesheet" href="daniel.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Quiz Master</h1>
+            <p>Wähle deine Kategorie und Schwierigkeit</p>
+        </header>
+
+        <main>
+            <form id="quizForm" class="quiz-form">
+                <!-- Kategorie Auswahl -->
+                <section class="selection-section">
+                    <h2>📚 Kategorie</h2>
+                    <div class="options-grid">
+                        <label class="option-card">
+                            <input type="radio" name="category" value="any" required>
+                            <span class="option-title">Beliebig</span>
+                            <span class="option-icon">🎲</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="9">
+                            <span class="option-title">Allgemeinwissen</span>
+                            <span class="option-icon">🌍</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="10">
+                            <span class="option-title">Bücher</span>
+                            <span class="option-icon">📚</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="11">
+                            <span class="option-title">Filme</span>
+                            <span class="option-icon">🎬</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="12">
+                            <span class="option-title">Musik</span>
+                            <span class="option-icon">🎵</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="13">
+                            <span class="option-title">Musicals & Theater</span>
+                            <span class="option-icon">🎭</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="14">
+                            <span class="option-title">Fernsehen</span>
+                            <span class="option-icon">📺</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="15">
+                            <span class="option-title">Videospiele</span>
+                            <span class="option-icon">🎮</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="16">
+                            <span class="option-title">Brettspiele</span>
+                            <span class="option-icon">🎲</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="17">
+                            <span class="option-title">Natur & Wissenschaft</span>
+                            <span class="option-icon">🌿</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="18">
+                            <span class="option-title">Computer</span>
+                            <span class="option-icon">💻</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="19">
+                            <span class="option-title">Mathematik</span>
+                            <span class="option-icon">🔢</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="20">
+                            <span class="option-title">Mythologie</span>
+                            <span class="option-icon">⚡</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="21">
+                            <span class="option-title">Sport</span>
+                            <span class="option-icon">⚽</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="22">
+                            <span class="option-title">Geographie</span>
+                            <span class="option-icon">🗺️</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="23">
+                            <span class="option-title">Geschichte</span>
+                            <span class="option-icon">📜</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="24">
+                            <span class="option-title">Politik</span>
+                            <span class="option-icon">🏛️</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="25">
+                            <span class="option-title">Kunst</span>
+                            <span class="option-icon">🎨</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="26">
+                            <span class="option-title">Prominente</span>
+                            <span class="option-icon">⭐</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="27">
+                            <span class="option-title">Tiere</span>
+                            <span class="option-icon">🦁</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="28">
+                            <span class="option-title">Fahrzeuge</span>
+                            <span class="option-icon">🚗</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="29">
+                            <span class="option-title">Comics</span>
+                            <span class="option-icon">💭</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="30">
+                            <span class="option-title">Gadgets</span>
+                            <span class="option-icon">📱</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="31">
+                            <span class="option-title">Anime & Manga</span>
+                            <span class="option-icon">🎌</span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="category" value="32">
+                            <span class="option-title">Cartoons</span>
+                            <span class="option-icon">🎪</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Schwierigkeit Auswahl -->
+                <section class="selection-section">
+                    <h2>⚡ Schwierigkeit</h2>
+                    <div class="difficulty-grid">
+                        <label class="difficulty-card easy">
+                            <input type="radio" name="difficulty" value="easy" required>
+                            <span class="difficulty-level">Einfach</span>
+                            <span class="difficulty-stars">⭐</span>
+                        </label>
+                        <label class="difficulty-card medium">
+                            <input type="radio" name="difficulty" value="medium">
+                            <span class="difficulty-level">Mittel</span>
+                            <span class="difficulty-stars">⭐⭐</span>
+                        </label>
+                        <label class="difficulty-card hard">
+                            <input type="radio" name="difficulty" value="hard">
+                            <span class="difficulty-level">Schwer</span>
+                            <span class="difficulty-stars">⭐⭐⭐</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Anzahl der Fragen -->
+                <section class="selection-section">
+                    <h2>📝 Anzahl der Fragen</h2>
+                    <div class="number-input">
+                        <input type="number" name="questionCount" min="1" max="50" value="10" required>
+                        <span class="input-label">Fragen</span>
+                    </div>
+                </section>
+
+                <!-- Start Button -->
+                <button type="submit" class="start-btn">Quiz Starten 🚀</button>
+            </form>
+        </main>
+
+        <footer>
+            <p>© Kolm Benjamin 2025</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
