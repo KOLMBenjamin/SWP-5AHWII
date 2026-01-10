@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../GRG-SWP"
+		}
+	],
+	"settings": {
+		"prisma.pinToPrisma6": true,
+		"liveServer.settings.multiRootWorkspaceName": "SWP-5AHWII"
+	}
+}

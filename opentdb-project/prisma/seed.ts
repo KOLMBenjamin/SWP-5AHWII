@@ -1,257 +1,166 @@
 import { PrismaClient } from "./prisma/client/client.ts";
-import { categories, difficulties } from "./prisma/seeddata.ts";
+import { categories } from "./seeddata.ts";
 
 const prisma = new PrismaClient();
 
-interface OpenTDBQuestion {
-  category: string;
-  type: "multiple" | "boolean";
-  difficulty: "easy" | "medium" | "hard";
-  question: string;
-  correct_answer: string;
-  incorrect_answers: string[];
-}
-
-interface OpenTDBResponse {
-  response_code: number;
-  results: OpenTDBQuestion[];
-}
-
-interface OpenTDBCategory {
-  id: number;
-  name: string;
-}
-
-function decodeHtmlEntities(text: string): string {
-  return text
+function decodeHtmlEntities(str: string) {
+  if (!str) return str;
+  return str
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;|&apos;/g, "'")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&eacute;/g, "é")
-    .replace(/&ouml;/g, "ö")
-    .replace(/&uuml;/g, "ü")
-    .replace(/&auml;/g, "ä")
-    .replace(/&szlig;/g, "ß")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&copy;/g, "©")
-    .replace(/&reg;/g, "®")
-    .replace(/&ldquo;/g, '"')
-    .replace(/&rdquo;/g, '"')
-    .replace(/&hellip;/g, "...");
+    .replace(/&#(\d+);/g, (_m, n) => String.fromCharCode(Number(n)));
 }
 
-async function ensureLookupTables() {
-  console.log(" Ensuring lookup tables");
-
-  const difficulties = ["easy", "medium", "hard"];
-  for (const level of difficulties) {
-    await prisma.difficulty.upsert({
-      where: { level },
-      update: {},
-      create: { level },
-    });
-  }
-  console.log("Difficulties created");
-
-  const types = ["multiple", "boolean"];
-  for (const type of types) {
-    await prisma.type.upsert({
-      where: { type },
-      update: {},
-      create: { type },
-    });
-  }
-  console.log(" Types created");
+async function sleep(ms: number) {
+  return new Promise((res) => setTimeout(res, ms));
 }
 
-async function importQuestions() {
-  try {
-    console.log(" Starting OpenTDB import...");
+async function requestToken() {
+  const r = await fetch("https://opentdb.com/api_token.php?command=request");
+  const j = await r.json();
+  if (!j.token) throw new Error("Token request failed");
+  return j.token as string;
+}
 
-    await ensureLookupTables();
+async function fetchBatch(amount: number, categoryId: string, token: string) {
+  const url =
+    `https://opentdb.com/api.php?amount=${amount}&category=${categoryId}&token=${token}`;
+  const r = await fetch(url);
+  return r.json();
+}
 
-    console.log("Fetching categories from OpenTDB");
-    const categoriesResponse = await fetch(
-      "https://opentdb.com/api_category.php",
-    );
+async function upsertMeta(categoryName: string, opentdbId: number) {
+  const category = await prisma.category.upsert({
+    where: { name: categoryName },
+    update: { opentdb_id: opentdbId },
+    create: { name: categoryName, opentdb_id: opentdbId },
+  });
+  return category;
+}
 
-    if (!categoriesResponse.ok) {
-      throw new Error(
-        `Failed to fetch categories: ${categoriesResponse.status}`,
-      );
+async function upsertDifficulty(level: string) {
+  const d = await prisma.difficulty.upsert({
+    where: { level },
+    update: {},
+    create: { level },
+  });
+  return d;
+}
+
+async function upsertType(typeName: string) {
+  const t = await prisma.type.upsert({
+    where: { type: typeName },
+    update: {},
+    create: { type: typeName },
+  });
+  return t;
+}
+
+async function importCategory(cat: { id: string; name: string }) {
+  console.log(`\n==> Import Kategorie ${cat.name} (id=${cat.id})`);
+  // Anzahl Fragen in Kategorie abfragen
+  const countRes = await fetch(
+    `https://opentdb.com/api_count.php?category=${cat.id}`,
+  );
+  const countJson = await countRes.json();
+  const total = Number(
+    countJson?.category_question_count?.total_question_count ?? 0,
+  );
+  if (!total) {
+    console.log(`  Keine Fragen gefunden (${cat.name})`);
+    return;
+  }
+  console.log(`  Gefundene Fragen (laut API): ${total}`);
+
+  const token = await requestToken();
+  console.log(`  Token erhalten`);
+
+  const seen = new Set<string>(); // Verhindert doppelte Einträge basierend auf Text
+  const categoryRecord = await upsertMeta(cat.name, Number(cat.id));
+
+  let fetched = 0;
+  const pageSize = 50;
+
+  while (fetched < total) {
+    const need = Math.min(pageSize, total - fetched);
+    const batchJson = await fetchBatch(need, cat.id, token);
+
+    // response_code: 0 success, 1 no results, 4 token empty (alle Fragen geliefert)
+    const code = batchJson.response_code;
+    if (code === 1) {
+      console.log("  API: keine Results mehr");
+      break;
     }
+    if (code === 4) {
+      console.log("  Token empty (alle eindeutigen Fragen geliefert)");
+      break;
+    }
+    const results = batchJson.results || [];
+    if (!results.length) break;
 
-    const categoriesData = await categoriesResponse.json();
-    const categories = categoriesData.trivia_categories as OpenTDBCategory[];
-    console.log(`Found ${categories.length} categories`);
+    for (const item of results) {
+      const qText = decodeHtmlEntities(item.question || "");
+      if (seen.has(qText)) continue;
+      seen.add(qText);
 
-    console.log("Saving categories to database");
-    for (const category of categories) {
-      await prisma.category.upsert({
-        where: { opentdb_id: category.id },
-        update: { name: decodeHtmlEntities(category.name) },
-        create: {
-          name: decodeHtmlEntities(category.name),
-          opentdb_id: category.id,
+      const diff = await upsertDifficulty(item.difficulty ?? "unknown");
+      const typ = await upsertType(item.type ?? "multiple");
+
+      // Antworten anlegen
+      const correctText = decodeHtmlEntities(item.correct_answer || "");
+      const incorrectsText = (item.incorrect_answers || []).map((s: string) =>
+        decodeHtmlEntities(s)
+      );
+
+      const correct = await prisma.answer.create({
+        data: { answer: correctText },
+      });
+      const incorrectCreated = [];
+      for (const ia of incorrectsText) {
+        const a = await prisma.answer.create({ data: { answer: ia } });
+        incorrectCreated.push(a);
+      }
+
+      // Frage anlegen und Relationen verbinden
+      await prisma.question.create({
+        data: {
+          question: qText,
+          difficulty: { connect: { id: diff.id } },
+          category: { connect: { id: categoryRecord.id } },
+          type: { connect: { id: typ.id } },
+          correct_answer: { connect: { id: correct.id } },
+          incorrect_answers: {
+            connect: incorrectCreated.map((x) => ({ id: x.id })),
+          },
         },
       });
     }
-    console.log("Categories saved");
 
-    let totalImported = 0;
-    let totalSkipped = 0;
+    fetched = seen.size;
+    console.log(`  Importiert: ${fetched}/${total}`);
+    // kleine Pause, um API nicht zu überlasten
+    await sleep(200);
+  }
 
-    console.log(
-      `\n Importing questions for ${categoriesToImport.length} categories...`,
-    );
+  console.log(
+    `Fertig Kategorie ${cat.name}, insgesamt importiert: ${seen.size}`,
+  );
+}
 
-    for (const category of categoriesToImport) {
-      console.log(`\nProcessing: ${category.name} (ID: ${category.id})`);
-
-      const difficulties = ["easy", "medium"]; // Nur easy & medium zum Testen
-      const types = ["multiple"]; // Nur multiple choice zum Testen
-
-      for (const difficulty of difficulties) {
-        for (const type of types) {
-          const apiUrl =
-            `https://opentdb.com/api.php?amount=5&category=${category.id}&difficulty=${difficulty}&type=${type}`;
-
-          try {
-            console.log(`Fetching ${difficulty} ${type} questions`);
-            const response = await fetch(apiUrl);
-
-            if (!response.ok) {
-              console.log(`    HTTP Error: ${response.status}`);
-              continue;
-            }
-
-            const data: OpenTDBResponse = await response.json();
-
-            if (data.response_code !== 0 || data.results.length === 0) {
-              console.log(`    No ${difficulty} ${type} questions found`);
-              continue;
-            }
-
-            console.log(`    Processing ${data.results.length} questions`);
-
-            let categoryImported = 0;
-            let categorySkipped = 0;
-
-            for (const questionData of data.results) {
-              try {
-                const decodedQuestion = decodeHtmlEntities(
-                  questionData.question,
-                );
-
-                const existingQuestion = await prisma.question.findFirst({
-                  where: { question: decodedQuestion },
-                });
-
-                if (existingQuestion) {
-                  categorySkipped++;
-                  continue;
-                }
-
-                const incorrectAnswers = questionData.incorrect_answers.map(
-                  (answer) => decodeHtmlEntities(answer),
-                );
-                const correctAnswer = decodeHtmlEntities(
-                  questionData.correct_answer,
-                );
-                const allAnswers = [...incorrectAnswers, correctAnswer];
-
-                const answerRecords = await Promise.all(
-                  allAnswers.map(async (answerText) => {
-                    return await prisma.answer.upsert({
-                      where: { answer: answerText },
-                      update: {},
-                      create: { answer: answerText },
-                    });
-                  }),
-                );
-
-                const correctAnswerRecord = answerRecords.find(
-                  (answer) => answer.answer === correctAnswer,
-                );
-
-                if (!correctAnswerRecord) {
-                  console.log(`  Correct answer not found for question`);
-                  categorySkipped++;
-                  continue;
-                }
-
-                await prisma.question.create({
-                  data: {
-                    question: decodedQuestion,
-                    difficulty: {
-                      connect: { level: questionData.difficulty },
-                    },
-                    category: {
-                      connect: { opentdb_id: category.id },
-                    },
-                    type: {
-                      connect: { type: questionData.type },
-                    },
-                    incorrect_answers: {
-                      connect: answerRecords
-                        .filter((answer) =>
-                          answer.id !== correctAnswerRecord.id
-                        )
-                        .map((answer) => ({ id: answer.id })),
-                    },
-                    correct_answer: {
-                      connect: { id: correctAnswerRecord.id },
-                    },
-                  },
-                });
-
-                categoryImported++;
-                totalImported++;
-                console.log(
-                  `    Added: ${decodedQuestion.substring(0, 50)}...`,
-                );
-              } catch (error) {
-                console.error(`    Error importing question:`, error);
-                categorySkipped++;
-              }
-            }
-
-            console.log(
-              `    📊 ${difficulty}/${type}: Imported: ${categoryImported}, Skipped: ${categorySkipped}`,
-            );
-
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          } catch (error) {
-            console.error(
-              `     Error fetching ${difficulty} ${type} questions:`,
-              error,
-            );
-          }
-        }
-      }
+async function main() {
+  try {
+    for (const c of categories) {
+      await importCategory(c as any);
     }
-
-    console.log(`\n Import completed!`);
-    console.log(`Total imported: ${totalImported}`);
-    console.log(`Total skipped: ${totalSkipped}`);
-
-    const questionCount = await prisma.question.count();
-    const categoryCount = await prisma.category.count();
-    const answerCount = await prisma.answer.count();
-
-    console.log(`\n Database statistics:`);
-    console.log(`   Questions: ${questionCount}`);
-    console.log(`   Categories: ${categoryCount}`);
-    console.log(`   Answers: ${answerCount}`);
-  } catch (error) {
-    console.error(" Import failed:", error);
+    console.log("\nAlle Kategorien verarbeitet.");
+  } catch (err) {
+    console.error("Fehler beim Import:", err);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-if (import.meta.main) {
-  await importQuestions();
-}
+await main();

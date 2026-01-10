@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --allow-read --allow-write --allow-net --allow-env main.ts",
+    "dev": "deno run --allow-read --allow-write --allow-net --allow-env seed.ts",
     "prisma:generate": "prisma generate",
     "prisma:db-push": "prisma db push",
     "prisma:studio": "prisma studio",

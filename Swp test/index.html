@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Gesehene Spiele</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Match</h1>
+
+<div class="form-container">
+    <label>Stadion</label>
+    <input type="text" id="stadion">
+
+    <label>Alter</label>
+    <input type="number" id="alter" min="0">
+
+    <label>Match</label>
+    <input type="text" id="match">
+
+    <label>Sortieren</label>
+    <select id="sortField">
+        <option value="stadion">Stadion</option>
+        <option value="alter">Alter</option>
+        <option value="match">Match</option>
+    </select>
+
+    <p id="error"></p>
+
+    <div class="buttons">
+        <button onclick="addData()">Hinzufügen</button>
+        <button onclick="saveData()">Speichern</button>
+    
+        <button onclick="sortData()">Sortieren</button>
+    </div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Stadion</th>
+            <th>Alter</th>
+            <th>Match</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<script src="script.js"></script>
+</body>
+</html>
